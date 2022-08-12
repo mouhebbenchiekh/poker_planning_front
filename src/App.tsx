@@ -1,33 +1,41 @@
-import { useState } from 'react';
+import * as React from 'react';
 import reactLogo from './assets/react.svg';
 import './App.css';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  UNSAFE_RouteContext,
+} from 'react-router-dom';
+import { IUser } from './context/auth';
+import { userContext } from './context/auth';
+
+const AuthenticatedApp = React.lazy(() => import('./authenticatedApp'));
+const UnauthenticatedApp = React.lazy(() => import('./unauthenticatedApp'));
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [user, setUser] = React.useState<IUser | undefined>(undefined);
+  const authUser = React.useContext(userContext);
 
   return (
-    <div className='flex h-screen'>
-      <div>
-        <a href='https://vitejs.dev' target='_blank'>
-          <img src='/vite.svg' className='logo' alt='Vite logo' />
-        </a>
-        <a href='https://reactjs.org' target='_blank'>
-          <img src={reactLogo} className='logo react' alt='React logo' />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className='card'>
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className='read-the-docs'>
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
+    <userContext.Provider value={{ user, setUser }}>
+      <React.Suspense fallback={<>fallback</>}>
+        <Router>
+          <Routes>
+            <Route
+              path='/'
+              element={
+                authUser.user ? (
+                  <AuthenticatedApp user={user} />
+                ) : (
+                  <UnauthenticatedApp />
+                )
+              }
+            />
+          </Routes>
+        </Router>
+      </React.Suspense>
+    </userContext.Provider>
   );
 }
 
