@@ -4,7 +4,7 @@ import Login from './components/login';
 
 const UnauthenticatedApp: React.FC = (...props) => (
   <Routes>
-    <Route path='*' element={<Login />} />
+    <Route path='/' element={<Login />} />
   </Routes>
 );
 

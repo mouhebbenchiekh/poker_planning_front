@@ -2,10 +2,9 @@ import React from 'react';
 
 export interface IUser {
   id: number;
-  first_name: String;
-  last_name: String;
-  email: String;
-  password: String;
+  family_name: string;
+  given_name: string;
+  email: string;
 }
 
 type userContext = {

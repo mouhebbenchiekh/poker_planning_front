@@ -1,16 +1,18 @@
 import * as React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { IUser } from './context/auth';
-type Props = {
-  user?: IUser;
-};
+import Navbar from './components/navbar';
+import { IUser, userContext } from './context/auth';
 
-const AuthenticatedApp = (props: Props) => {
-  console.log({ user: props.user });
+const AuthenticatedApp = () => {
+  const { user } = React.useContext(userContext);
+
   return (
-    <Routes>
-      <Route path='/welcome' element={<> welcome</>} />;
-    </Routes>
+    <>
+      <Navbar />
+      <Routes>
+        <Route path='/' element={<> welcome {user?.email}</>} />;
+      </Routes>
+    </>
   );
 };
 
