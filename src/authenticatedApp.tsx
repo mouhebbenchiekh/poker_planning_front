@@ -1,18 +1,19 @@
 import * as React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Navbar from './components/navbar';
-import { IUser, userContext } from './context/auth';
+import { useAuth } from './context/auth';
+import WelcomePage from './pages/welcome';
 
 const AuthenticatedApp = () => {
-  const { user } = React.useContext(userContext);
+  const { user } = useAuth();
 
   return (
-    <>
+    <div className='h-screen'>
       <Navbar />
       <Routes>
-        <Route path='/' element={<> welcome {user?.email}</>} />;
+        <Route path='/' element={<WelcomePage />} />;
       </Routes>
-    </>
+    </div>
   );
 };
 

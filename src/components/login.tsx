@@ -1,60 +1,33 @@
 import { useGoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
-import React, { useContext } from 'react';
-import { userContext } from '../context/auth';
-let config = {
-  headers: {
-    'Access-Control-Allow-Origin': '*',
-  },
-};
-function objectToQueryString(obj: any) {
-  var str = [];
-  for (var p in obj)
-    if (obj.hasOwnProperty(p)) {
-      str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-    }
-  return str.join('&');
-}
+import React from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useAuth } from '../context/auth';
 
 const Login: React.FC = () => {
-  const { user, setUser } = useContext(userContext);
+  const { LoginSuccess } = useAuth();
+  const [search, setSearch] = useSearchParams({});
+
+  React.useEffect(() => {
+    const callback_url = new URL(
+      `${import.meta.env.VITE_BACKEND_URL}login/google/callback`
+    );
+    callback_url.search = search.toString();
+    LoginSuccess(callback_url.toString());
+  }, [search]);
+
   const login = useGoogleLogin({
     onSuccess: (res) => {
-      console.log({ res });
-
-      const queryString = objectToQueryString(res);
-
-      const callback_url = new URL(
-        'http://localhost:3000/login/google/callback'
-      );
-      callback_url.search = queryString;
-      console.log(callback_url.toString());
-
-      axios
-        .get(callback_url.toString())
-        .then((result) => {
-          setUser(result?.data?.data);
-          localStorage.setItem('token', result.data.token);
-        })
-        .catch((err) => console.log(err));
+      setSearch(res);
     },
-    onError: (error) => console.log(error),
+    onError: (error) => {
+      throw new Error(error.error);
+    },
     flow: 'auth-code',
     scope: 'profile',
-    /* redirect_uri: 'http://localhost:3000/login/google/callback',
-    ux_mode: 'redirect', */
     state: 'mouheb',
   });
   return (
     <>
-      {/*
-        This example requires updating your template:
-
-        ```
-        <html class="h-full bg-gray-50">
-        <body class="h-full">
-        ```
-      */}
       <div className='min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8'>
         <div className='max-w-md w-full space-y-8'>
           <div className='flex flex-col justify-center '>
@@ -64,7 +37,7 @@ const Login: React.FC = () => {
               alt='Workflow'
             />
             <h2 className='mt-6 text-center text-3xl font-extrabold text-gray-900'>
-              Sign in to your account {user?.family_name}
+              Sign in to your account
             </h2>
 
             <button
