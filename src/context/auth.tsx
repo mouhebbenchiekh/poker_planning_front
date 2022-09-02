@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { PropsWithChildren, useEffect } from 'react';
+import ErrorBoundary from '../errorBoundary';
 
 export interface IUser {
   id: number;

@@ -1,23 +1,27 @@
 import { useGoogleLogin } from '@react-oauth/google';
-import React from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/auth';
 
 const Login: React.FC = () => {
   const { LoginSuccess } = useAuth();
   const [search, setSearch] = useSearchParams({});
+  const [send, setSend] = useState(false);
 
   React.useEffect(() => {
-    const callback_url = new URL(
-      `${import.meta.env.VITE_BACKEND_URL}login/google/callback`
-    );
-    callback_url.search = search.toString();
-    LoginSuccess(callback_url.toString());
-  }, [search]);
+    if (send) {
+      const callback_url = new URL(
+        `${import.meta.env.VITE_BACKEND_URL}login/google/callback`
+      );
+      callback_url.search = search.toString();
+      LoginSuccess(callback_url.toString());
+    }
+  }, [send]);
 
   const login = useGoogleLogin({
     onSuccess: (res) => {
       setSearch(res);
+      setSend(true);
     },
     onError: (error) => {
       throw new Error(error.error);

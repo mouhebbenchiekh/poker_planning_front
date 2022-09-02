@@ -12,6 +12,7 @@ const AuthenticatedApp = () => {
       <Navbar />
       <Routes>
         <Route path='/' element={<WelcomePage />} />;
+        <Route path='/:id' element={<>welcome to ROOM</>} />
       </Routes>
     </div>
   );
