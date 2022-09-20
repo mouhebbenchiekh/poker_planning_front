@@ -10,7 +10,7 @@ import {
 import { useAuth } from '../context/auth';
 import { NavLink } from 'react-router-dom';
 
-const navigation = [{ name: 'Rooms', href: '#', current: true }];
+const navigation = [{ name: 'Rooms', href: '/', current: true }];
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -19,7 +19,7 @@ function classNames(...classes: string[]) {
 const Navbar: React.FC = () => {
   const { setUser } = useAuth();
   return (
-    <Disclosure as='nav' className='bg-slate-200'>
+    <Disclosure as='nav' className='bg-slate-200 shadow-sm shadow-gray-600'>
       {({ open }) => (
         <>
           <div className='max-w-7xl mx-auto px-2 sm:px-6 lg:px-8'>

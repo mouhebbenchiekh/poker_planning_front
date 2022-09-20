@@ -1,31 +1,36 @@
-import axios from 'axios';
+import { useMutation } from '@tanstack/react-query';
 import React from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { axiosInstance } from '../../axios.config';
+import { RoomType } from '../../types/room';
+
 interface Props {
   setShowModal: (value: boolean) => void;
 }
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import { RoomType } from '../../types/room';
-
 type Inputs = {
   name: string;
   type: string;
 };
-export default function CreateRoomModal({ setShowModal }: Props) {
+export const CreateRoomModal: React.FC<Props> = ({ setShowModal }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<Inputs>();
   const navigate = useNavigate();
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    const token = localStorage.getItem('token');
-    axios
-      .post(`${import.meta.env.VITE_BACKEND_URL}room/`, { token, ...data })
-      .then((result) => {
-        navigate(`${result.data._id}`, { replace: true });
-      })
-      .catch((error) => console.log(error));
+  const mutation = useMutation(
+    (args: Inputs) => {
+      return axiosInstance.post('/room/', args);
+    },
+    {
+      onSuccess: (data) => {
+        navigate(`${data.data._id}`);
+      },
+    }
+  );
+  const onSubmit: SubmitHandler<Inputs> = (args) => {
+    mutation.mutate(args);
   };
 
   return (
@@ -120,4 +125,4 @@ export default function CreateRoomModal({ setShowModal }: Props) {
       <div className='opacity-25 fixed inset-0 z-40 bg-black'></div>
     </>
   );
-}
+};

@@ -1,6 +1,7 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import axios from 'axios';
 import React, { PropsWithChildren, useEffect } from 'react';
-import ErrorBoundary from '../errorBoundary';
+import { axiosInstance } from '../axios.config';
 
 export interface IUser {
   id: number;
@@ -14,6 +15,7 @@ type authContextType = {
   setUser: (user?: IUser) => void;
   LoginSuccess: (callback_url: string) => void;
 };
+const queryClient = new QueryClient();
 
 const AuthContext = React.createContext<authContextType | undefined>(undefined);
 
@@ -24,12 +26,8 @@ const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
   useEffect(() => {
     if (token && !user) {
-      axios
-        .get('https://www.googleapis.com/oauth2/v2/userinfo', {
-          headers: {
-            Authorization: 'Bearer ' + token,
-          },
-        })
+      axiosInstance
+        .get('https://www.googleapis.com/oauth2/v2/userinfo')
         .then((result) => {
           setUser(result.data);
         })
@@ -37,14 +35,14 @@ const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
           throw new Error(error);
         });
     }
-  }, [token]);
+  }, []);
 
   const LoginSuccess = (callback_url: string) => {
     axios
       .get(callback_url)
       .then((result) => {
         setUser(result?.data?.data);
-        localStorage.setItem('token', result.data.token);
+        localStorage.setItem('token', JSON.stringify(result.data.token));
       })
       .catch((err) => {
         throw new Error(err);
@@ -61,7 +59,10 @@ const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
   );
 
   return (
-    <AuthContext.Provider value={context}>{children}</AuthContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      {' '}
+      <AuthContext.Provider value={context}>{children}</AuthContext.Provider>
+    </QueryClientProvider>
   );
 };
 

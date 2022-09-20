@@ -11,7 +11,7 @@ const Login: React.FC = () => {
   React.useEffect(() => {
     if (send) {
       const callback_url = new URL(
-        `${import.meta.env.VITE_BACKEND_URL}login/google/callback`
+        `${import.meta.env.VITE_BACKEND_URL}/login/google/callback`
       );
       callback_url.search = search.toString();
       LoginSuccess(callback_url.toString());

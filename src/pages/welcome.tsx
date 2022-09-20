@@ -1,6 +1,5 @@
-import axios from 'axios';
 import React from 'react';
-import CreateRoomModal from '../components/forms/createRoomModal';
+import { CreateRoomModal } from '../components/forms/createRoomModal';
 import List from '../components/lists/list';
 import ListItem from '../components/lists/listItem';
 import { useWelcome } from '../hooks/useWelcome';
@@ -8,7 +7,11 @@ import { useWelcome } from '../hooks/useWelcome';
 const WelcomePage: React.FC = () => {
   const [showModal, setShowModal] = React.useState(false);
 
-  const { rooms } = useWelcome();
+  const { rooms, isLoading } = useWelcome();
+  if (isLoading) {
+    return <>Loading...</>;
+  }
+
   return (
     <>
       {showModal ? <CreateRoomModal setShowModal={setShowModal} /> : null}
@@ -31,7 +34,7 @@ const WelcomePage: React.FC = () => {
         </div>
         <h1 className='font-bold text-xl '>Your Rooms:</h1>
         <List>
-          {rooms.map((ele) => (
+          {rooms?.map((ele) => (
             <ListItem key={ele._id} {...ele} />
           ))}
         </List>
