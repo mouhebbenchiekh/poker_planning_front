@@ -1,22 +1,20 @@
 import { FC, useEffect, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
 import Bar from '../components/room/bar';
 import Modal from '../components/room/modal';
 import PointsBar from '../components/room/points';
 import Result from '../components/room/result';
 import { useEnterRoom } from '../hooks/useEnterRoom';
-import { RoomType } from '../types/room';
 import { RefreshIcon } from '@heroicons/react/outline';
+import { useSocket } from '../context/socket';
+import { RoomModal } from '../components/modals/room';
+import { LinkModal } from '../components/modals/link';
 
-interface Props {
-  socket: Socket;
-}
-export const Room: FC<Props> = ({ socket }) => {
+export const Room: FC = () => {
+  const socket = useSocket();
   const {
     user,
-    open,
-    setOpen,
-    location,
+    openModal,
+    setOpenModal,
     users,
     username,
     setUserName,
@@ -24,18 +22,20 @@ export const Room: FC<Props> = ({ socket }) => {
     room,
     userId,
   } = useEnterRoom(socket);
+
   const [value, setValue] = useState('');
 
   const [input, setInput] = useState(username ? username : '');
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    socket.emit('send_value', {
-      room: location.pathname.substring(1),
-      username,
-      value,
-      userId,
-    });
+    if (room)
+      socket.emit('send_value', {
+        room: room?._id,
+        username,
+        value,
+        userId,
+      });
   }, [value]);
 
   if (isLoading) return <>is Loading ...</>;
@@ -44,24 +44,32 @@ export const Room: FC<Props> = ({ socket }) => {
       <Bar
         user={username}
         room={room?.name}
-        changeName={() => {
-          setOpen(true);
+        onChangeName={() => {
+          setOpenModal({ type: 'open_username', payload: true });
+        }}
+        onChangeRoom={() => {
+          setOpenModal({ type: 'open_room', payload: true });
+        }}
+        onShareLink={() => {
+          setOpenModal({ type: 'open_share', payload: true });
         }}
       />
-      <div className='w-full flex justify-start items-center mt-4 ml-4'>
-        <button
-          onClick={() => {
-            socket.emit('newStory', { room: room?._id });
-          }}
-          className='group relative w-max gap-1 flex uppercase justify-center items-center py-2 px-4 border border-transparent text-sm font-medium rounded-md bg-white border-indigo-600 text-indigo-600 hover:bg-slate-200 mt-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
-        >
-          <RefreshIcon className='w-6 h-6' /> new story
-        </button>
-      </div>
+      <button
+        onClick={() => {
+          socket.emit('newStory', { room: room?._id });
+          socket.emit('flip_cards', { room: room?._id, face: false });
+        }}
+        className='  ml-4 w-max gap-1 self-start flex uppercase justify-center items-center py-2 px-4 border border-transparent text-sm font-medium rounded-md bg-white border-indigo-600 text-indigo-600 hover:bg-slate-200 mt-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+      >
+        <RefreshIcon className='w-6 h-6' /> new story
+      </button>
+      <RoomModal open={openModal.room} setOpen={setOpenModal} room={room} />
+      <LinkModal open={openModal.share} setOpen={setOpenModal} room={room} />
+
       <Modal
-        isOpen={open}
+        isOpen={openModal.username}
         closeModal={() => {
-          if (username) setOpen(false);
+          if (username) setOpenModal({ type: 'open_username', payload: false });
         }}
         title='set username'
       >
@@ -95,7 +103,7 @@ export const Room: FC<Props> = ({ socket }) => {
                 setError(true);
               } else {
                 setUserName(input);
-                setOpen(false);
+                setOpenModal({ type: 'open_username', payload: false });
               }
             }}
           >
@@ -103,9 +111,12 @@ export const Room: FC<Props> = ({ socket }) => {
           </button>
         </div>
       </Modal>
-
-      <Result users={users} admin={user ? true : false} socket={socket} />
-      <PointsBar type={RoomType.fibonachi} setPoint={setValue} />
+      <Result
+        room={room}
+        users={users}
+        admin={Boolean(user?.id == room?.owner)}
+      />
+      <PointsBar type={room?.type} setPoint={setValue} />
     </>
   );
 };

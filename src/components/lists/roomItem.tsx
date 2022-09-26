@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { IRoom } from '../../types/room';
 
-export default function ListItem(props: Partial<IRoom>) {
+export default function RoomItem(props: Partial<IRoom>) {
   return (
     <Link to={props._id || '#'} replace={true}>
       <article className='flex items-start space-x-6 p-6 hover:cursor-pointer bg-slate-200'>

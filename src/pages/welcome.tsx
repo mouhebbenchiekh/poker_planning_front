@@ -1,7 +1,7 @@
 import React from 'react';
 import { CreateRoomModal } from '../components/forms/createRoomModal';
-import List from '../components/lists/list';
-import ListItem from '../components/lists/listItem';
+import RoomList from '../components/lists/roomList';
+import RoomItem from '../components/lists/roomItem';
 import { useWelcome } from '../hooks/useWelcome';
 
 const WelcomePage: React.FC = () => {
@@ -33,11 +33,11 @@ const WelcomePage: React.FC = () => {
           </button>
         </div>
         <h1 className='font-bold text-xl '>Your Rooms:</h1>
-        <List>
+        <RoomList>
           {rooms?.map((ele) => (
-            <ListItem key={ele._id} {...ele} />
+            <RoomItem key={ele._id} {...ele} />
           ))}
-        </List>
+        </RoomList>
       </div>
     </>
   );

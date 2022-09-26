@@ -1,13 +1,11 @@
 import * as React from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
-import { Socket } from 'socket.io-client';
-import Login from './components/login';
+import { Route, Routes } from 'react-router-dom';
+import Login from './pages/login';
 import { Room } from './pages/room';
 
-const UnauthenticatedApp: React.FC<{ socket: Socket }> = (props) => (
+const UnauthenticatedApp: React.FC = () => (
   <Routes>
-    <Route path='/:id' element={<Room socket={props.socket} />} />
-
+    <Route path='/:id' element={<Room />} />
     <Route path='/' element={<Login />} />
   </Routes>
 );

@@ -1,12 +1,25 @@
 import { useGoogleLogin } from '@react-oauth/google';
 import React, { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/auth';
+interface LocationState {
+  state: {
+    prev: string;
+  };
+}
 
 const Login: React.FC = () => {
   const { LoginSuccess } = useAuth();
   const [search, setSearch] = useSearchParams({});
   const [send, setSend] = useState(false);
+  const location = useLocation() as LocationState;
+
+  const [path, setPath] = useState('/');
+  React.useEffect(() => {
+    if (location.state) {
+      setPath(location.state.prev);
+    }
+  }, []);
 
   React.useEffect(() => {
     if (send) {
@@ -14,7 +27,7 @@ const Login: React.FC = () => {
         `${import.meta.env.VITE_BACKEND_URL}/login/google/callback`
       );
       callback_url.search = search.toString();
-      LoginSuccess(callback_url.toString());
+      LoginSuccess(callback_url.toString(), path);
     }
   }, [send]);
 

@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import axios from 'axios';
 import React, { PropsWithChildren, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { axiosInstance } from '../axios.config';
 
 export interface IUser {
@@ -13,7 +14,7 @@ export interface IUser {
 type authContextType = {
   user?: IUser;
   setUser: (user?: IUser) => void;
-  LoginSuccess: (callback_url: string) => void;
+  LoginSuccess: (callback_url: string, prevRoute?: string) => void;
 };
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const AuthContext = React.createContext<authContextType | undefined>(undefined);
 
 const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [user, setUser] = React.useState<IUser | undefined>(undefined);
+  const navigate = useNavigate();
 
   const token = localStorage.getItem('token');
 
@@ -37,12 +39,13 @@ const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
     }
   }, []);
 
-  const LoginSuccess = (callback_url: string) => {
+  const LoginSuccess = (callback_url: string, prevRoute?: string) => {
     axios
       .get(callback_url)
       .then((result) => {
         setUser(result?.data?.data);
         localStorage.setItem('token', JSON.stringify(result.data.token));
+        navigate(`${prevRoute}`);
       })
       .catch((err) => {
         throw new Error(err);

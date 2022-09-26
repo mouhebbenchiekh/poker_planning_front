@@ -1,12 +1,19 @@
 import { Menu, Transition } from '@headlessui/react';
 import { ChevronDownIcon, ShareIcon } from '@heroicons/react/outline';
+import clsx from 'clsx';
 import React, { Fragment } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/auth';
 interface Props {
   user?: string;
   room?: string;
-  changeName: () => void;
+  onChangeName: () => void;
+  onChangeRoom: () => void;
+  onShareLink: () => void;
 }
 const Bar: React.FC<Props> = (props) => {
+  const location = useLocation();
+  const context = useAuth();
   return (
     <div className='w-full bg-slate-50 flex flex-row justify-between items-center h-16 shadow-gray-600 shadow-sm px-8'>
       {
@@ -34,8 +41,14 @@ const Bar: React.FC<Props> = (props) => {
               <div className='px-1 py-1 '>
                 <Menu.Item>
                   {({ active }) => (
-                    <button className='block px-4 py-2 text-sm text-gray-700'>
-                      change room name
+                    <button
+                      className={clsx(
+                        active ? 'bg-gray-100' : '',
+                        'block px-4 py-2 text-sm text-gray-700'
+                      )}
+                      onClick={props.onChangeRoom}
+                    >
+                      change room details
                     </button>
                   )}
                 </Menu.Item>
@@ -69,10 +82,13 @@ const Bar: React.FC<Props> = (props) => {
               <Menu.Item>
                 {({ active }) => (
                   <button
-                    onClick={props.changeName}
-                    className='block px-4 py-2 text-sm text-gray-700'
+                    onClick={props.onChangeName}
+                    className={clsx(
+                      active ? 'bg-gray-100' : '',
+                      'block px-4 py-2 text-sm text-gray-700'
+                    )}
                   >
-                    change USERNAME
+                    change username
                   </button>
                 )}
               </Menu.Item>
@@ -81,14 +97,36 @@ const Bar: React.FC<Props> = (props) => {
               <Menu.Item>
                 {({ active }) => (
                   <button
-                    onClick={props.changeName}
-                    className='block px-4 py-2 text-sm text-gray-700'
+                    className={clsx(
+                      active ? 'bg-gray-100' : '',
+                      ' w-full flex px-4 py-2 text-sm text-gray-700 justify-between'
+                    )}
+                    onClick={props.onShareLink}
                   >
-                    share room link <ShareIcon className='h-6 w-6' />
+                    share room link{' '}
+                    <ShareIcon className='h-6 w-6 justify-self-end' />
                   </button>
                 )}
               </Menu.Item>
             </div>
+            {!context.user && (
+              <div className='px-1 py-1 '>
+                <Menu.Item>
+                  {({ active }) => (
+                    <NavLink
+                      to={'/'}
+                      state={{ prev: location.pathname }}
+                      className={clsx(
+                        active ? 'bg-gray-100' : '',
+                        'block px-4 py-2 text-sm text-gray-700'
+                      )}
+                    >
+                      login
+                    </NavLink>
+                  )}
+                </Menu.Item>
+              </div>
+            )}
           </Menu.Items>
         </Transition>
       </Menu>
